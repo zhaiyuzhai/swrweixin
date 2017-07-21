@@ -90,7 +90,7 @@ $signPackage = $jssdk->GetSignPackage();
   });
     wx.ready(function () {
     // 在这里调用 API
-        alert("ok");
+
     });
 </script>
 </html>
