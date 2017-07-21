@@ -37,8 +37,8 @@ $signPackage = $jssdk->GetSignPackage();
    * 邮件主题：【微信JS-SDK反馈】具体问题
    * 邮件内容说明：用简明的语言描述问题所在，并交代清楚遇到该问题的场景，可附上截屏图片，微信团队会尽快处理你的反馈。
    */
-  wx.config({
-    bate:true,
+wx.config({
+    beta:true,
     debug: true,
     appId: '<?php echo $signPackage["appId"];?>',
     timestamp: <?php echo $signPackage["timestamp"];?>,
@@ -94,38 +94,40 @@ $signPackage = $jssdk->GetSignPackage();
         'onWXDeviceStateChange',
         'onReceiveDataFromWXDevice'
     ]
-  });
-    wx.ready(function () {
+});
+wx.ready(function () {
         // 在这里调用 API
         weui.alert("wx already ok!!!");
-    });
-  $("#btn1").on("click",function(){
-        wx.invoke('openWXDeviceLib', {}, function(res){
+        wx.invoke('openWXDeviceLib',{'connType':'blue'}, function(res){
 //这里是回调函数
-          if(res.isSupportBLE=="no"){
-              weui.alert("您的设备不支持此蓝牙设备",{title:"错误提示"})
-          }
-          if(res.bluetoothState=='unauthorized'){
-              weui.alert("请您授权设备的蓝牙功能，并打开")
-          }
-      });
-  });
-  $("#btn2").on("click",function(){
+        weui.alert("打开硬件设备生效");
+        if(res.isSupportBLE=="no"){
+            weui.alert("您的设备不支持此蓝牙设备",{title:"错误提示"})
+        }
+        if(res.bluetoothState=='unauthorized'){
+            weui.alert("请您授权设备的蓝牙功能，并打开")
+        }
+    });
+});
+$("#btn2").on("click",function(){
+      alert("btn2 is clicked");
+      weui.alert("weui is worked");
       wx.invoke('getWXDeviceInfos', {}, function(res){
+          weui.alert("获取硬件设备的信息生效");
           var len=res.deviceInfos.length;  //绑定设备总数量
+          weui.alert(len);
           for(i=0; i<=len-1;i++)
           {
               //alert(i + ' ' + res.deviceInfos[i].deviceId + ' ' +res.deviceInfos[i].state);
               if(res.deviceInfos[i].state==="connected")
               {
                   $("#bluetoothContent").html(res.deviceInfos[i].deviceId);
-                  $("#lbInfo").html("2.设备已成功连接");
+                  $("#lbInfo").html("设备已成功连接");
                   $("#lbInfo").css({color:"green"});
-
               }
           }
 
       });
-  })
+  });
 </script>
 </html>
