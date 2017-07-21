@@ -12,10 +12,17 @@ $signPackage = $jssdk->GetSignPackage();
     <title>测试</title>
     <link rel="stylesheet" href="css/weui.css">
 </head>
-<body>
-    <h1>hello world</h1>
-    <button class="weui-btn weui-btn_default">点击我</button>
+<body ontouchstart>
+    <h1 style="text-align: center">SWR 蓝牙硬件设备测试DEMO</h1>
+    <div class="weui-media-box weui-media-box_text">
+        <h4 class="weui-media-box__title">蓝牙内容</h4>
+        <p id="lbInfo" class="weui-media-box__title">。。。。。。</p>
+        <p class="weui-media-box__desc" id="bluetoothContent">。。。。。。</p>
+    </div>
+    <button class="weui-btn weui-btn_plain-primary" id="btn1">开始初始化设备</button>
+    <button class="weui-btn weui-btn_plain-primary" id="btn2">获取蓝牙设备信息</button>
 </body>
+<script src="https://res.wx.qq.com/open/libs/weuijs/1.1.1/weui.min.js"></script>
 <script src="js/zepto.min.js"></script>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
@@ -89,8 +96,36 @@ $signPackage = $jssdk->GetSignPackage();
     ]
   });
     wx.ready(function () {
-    // 在这里调用 API
-
+        // 在这里调用 API
+        weui.alert("wx already ok!!!");
     });
+  $("#btn1").on("click",function(){
+        wx.invoke('openWXDeviceLib', {}, function(res){
+//这里是回调函数
+          if(res.isSupportBLE=="no"){
+              weui.alert("您的设备不支持此蓝牙设备",{title:"错误提示"})
+          }
+          if(res.bluetoothState=='unauthorized'){
+              weui.alert("请您授权设备的蓝牙功能，并打开")
+          }
+      });
+  });
+  $("#btn2").on("click",function(){
+      wx.invoke('getWXDeviceInfos', {}, function(res){
+          var len=res.deviceInfos.length;  //绑定设备总数量
+          for(i=0; i<=len-1;i++)
+          {
+              //alert(i + ' ' + res.deviceInfos[i].deviceId + ' ' +res.deviceInfos[i].state);
+              if(res.deviceInfos[i].state==="connected")
+              {
+                  $("#bluetoothContent").html(res.deviceInfos[i].deviceId);
+                  $("#lbInfo").html("2.设备已成功连接");
+                  $("#lbInfo").css({color:"green"});
+
+              }
+          }
+
+      });
+  })
 </script>
 </html>
