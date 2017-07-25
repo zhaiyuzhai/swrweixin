@@ -1,0 +1,12 @@
+<xml>
+	<ToUserName><![CDATA[gh_e09af6572b88]]></ToUserName>
+	<FromUserName><![CDATA[o51n91YIyF0PV45MzAbHp5s6vj1k]]></FromUserName>
+	<CreateTime>1500977790</CreateTime>
+	<MsgType><![CDATA[device_text]]></MsgType>
+	<DeviceType><![CDATA[gh_e09af6572b88]]></DeviceType>
+	<DeviceID><![CDATA[gh_e09af6572b88_78b160fa0fdaec7f]]></DeviceID>
+	<Content><![CDATA[qgFQ+MFM+EC0NDE1QjBUMDAxMDEwNFABAAAAAHwN0S8=]]></Content>
+	<SessionID>73584</SessionID>
+	<MsgID>21518256087</MsgID>
+	<OpenID><![CDATA[o51n91YIyF0PV45MzAbHp5s6vj1k]]></OpenID>
+</xml>

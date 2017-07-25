@@ -37,6 +37,7 @@ $signPackage = $jssdk->GetSignPackage();
    * 邮件主题：【微信JS-SDK反馈】具体问题
    * 邮件内容说明：用简明的语言描述问题所在，并交代清楚遇到该问题的场景，可附上截屏图片，微信团队会尽快处理你的反馈。
    */
+  var we=weui;
 wx.config({
     beta:true,
     debug: true,
@@ -98,23 +99,25 @@ wx.config({
 wx.ready(function () {
     // 在这里调用 API
     weui.alert("wx already ok!!!");
+
     wx.invoke('openWXDeviceLib',{'brandUserName':'gh_e09af6572b88'}, function(res){
 //这里是回调函数
-    weui.alert("打开硬件设备生效");
+
+    we.alert(res);
     if(res.isSupportBLE=="no"){
-        weui.alert("您的设备不支持此蓝牙设备",{title:"错误提示"})
+        we.alert("您的设备不支持此蓝牙设备",{title:"错误提示"})
     }
     if(res.bluetoothState=='unauthorized'){
-        weui.alert("请您授权设备的蓝牙功能，并打开")
+        we.alert("请您授权设备的蓝牙功能，并打开")
     }
     });
     $("#btn2").on("click",function(){
     alert("btn2 is clicked");
-    weui.alert("weui is worked");
+    we.alert("weui is worked");
     wx.invoke('getWXDeviceInfos', {}, function(res){
-        weui.alert("获取硬件设备的信息生效");
+        we.alert("获取硬件设备的信息生效");
         var len=res.deviceInfos.length;  //绑定设备总数量
-        weui.alert(len);
+        we.alert(len);
         for(i=0; i<=len-1;i++)
         {
             //alert(i + ' ' + res.deviceInfos[i].deviceId + ' ' +res.deviceInfos[i].state);
@@ -131,7 +134,7 @@ wx.ready(function () {
 });
 wx.checkJsApi({ jsApiList: [ 'openWXDeviceLib', 'onScanWXDevicesResult', 'getWXDeviceInfos'],success: function(res){ console.log(res)}});
 wx.error(function(res){
-      alert("wx.error错误："+JSON.stringify(res));
+      console.log("wx.error错误："+JSON.stringify(res));
       //如果初始化出错了会调用此方法，没什么特别要注意的
   });
 </script>
