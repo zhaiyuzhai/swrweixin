@@ -20,11 +20,12 @@ $signPackage = $jssdk->GetSignPackage();
         <p class="weui-media-box__desc" id="bluetoothContent">。。。。。。</p>
         <p class="weui-media-box__desc" id="recData">......</p>
     </div>
-    <button class="weui-btn weui-btn_plain-primary" id="btn1">开始初始化设备</button>
+<!--    <button class="weui-btn weui-btn_plain-primary" id="btn1">开始初始化设备</button>-->
     <button class="weui-btn weui-btn_plain-primary" id="btn2">获取蓝牙设备信息</button>
     <button class="weui-btn weui-btn_plain-primary" id="btn3">发送数据W给设备</button>
-    <button class="weui-btn weui-btn_plain-primary" id="btn4">发送数据base64给设备</button>
-    <button class="weui-btn weui-btn_plain-primary" id="btn5">发送数据copy给设备</button>
+    <button class="weui-btn weui-btn_plain-primary" id="btn4">发送数据□给设备</button>
+    <button class="weui-btn weui-btn_plain-primary" id="btn5">发送数据15字节给设备</button>
+    <button class="weui-btn weui-btn_plain-primary" id="btn6">发送数据copy数据给设备</button>
 
 </body>
 <script src="https://res.wx.qq.com/open/libs/weuijs/1.1.1/weui.min.js"></script>
@@ -53,40 +54,40 @@ wx.config({
     signature: '<?php echo $signPackage["signature"];?>',
     jsApiList: [
       // 所有要调用的 API 都要加到这个列表中
-        'checkJsApi',
-        'onMenuShareTimeline',
-        'onMenuShareAppMessage',
-        'onMenuShareQQ',
-        'onMenuShareWeibo',
-        'hideMenuItems',
-        'showMenuItems',
-        'hideAllNonBaseMenuItem',
-        'showAllNonBaseMenuItem',
-        'translateVoice',
-        'startRecord',
-        'stopRecord',
-        'onRecordEnd',
-        'playVoice',
-        'pauseVoice',
-        'stopVoice',
-        'uploadVoice',
-        'downloadVoice',
-        'chooseImage',
-        'previewImage',
-        'uploadImage',
-        'downloadImage',
-        'getNetworkType',
-        'openLocation',
-        'getLocation',
-        'hideOptionMenu',
-        'showOptionMenu',
-        'closeWindow',
-        'scanQRCode',
-        'chooseWXPay',
-        'openProductSpecificView',
-        'addCard',
-        'chooseCard',
-        'openCard',
+//        'checkJsApi',
+//        'onMenuShareTimeline',
+//        'onMenuShareAppMessage',
+//        'onMenuShareQQ',
+//        'onMenuShareWeibo',
+//        'hideMenuItems',
+//        'showMenuItems',
+//        'hideAllNonBaseMenuItem',
+//        'showAllNonBaseMenuItem',
+//        'translateVoice',
+//        'startRecord',
+//        'stopRecord',
+//        'onRecordEnd',
+//        'playVoice',
+//        'pauseVoice',
+//        'stopVoice',
+//        'uploadVoice',
+//        'downloadVoice',
+//        'chooseImage',
+//        'previewImage',
+//        'uploadImage',
+//        'downloadImage',
+//        'getNetworkType',
+//        'openLocation',
+//        'getLocation',
+//        'hideOptionMenu',
+//        'showOptionMenu',
+//        'closeWindow',
+//        'scanQRCode',
+//        'chooseWXPay',
+//        'openProductSpecificView',
+//        'addCard',
+//        'chooseCard',
+//        'openCard',
 //        jsAPI硬件部分
         'openWXDeviceLib',
         'closeWXDeviceLib',
@@ -108,7 +109,6 @@ wx.ready(function () {
 
     wx.invoke('openWXDeviceLib',{'brandUserName':'gh_e09af6572b88'}, function(res){
 //这里是回调函数
-
     we.alert(res);
     if(res.isSupportBLE=="no"){
         we.alert("您的设备不支持此蓝牙设备")
@@ -120,23 +120,26 @@ wx.ready(function () {
     $("#btn2").on("click",function(){
 //    alert("btn2 is clicked");
 //    we.alert("weui is worked");
-    wx.invoke('getWXDeviceInfos', {}, function(res){
-        we.alert("获取硬件设备的信息生效");
-        var len=res.deviceInfos.length;  //绑定设备总数量
-        we.alert(len);
-        for(i=0; i<=len-1;i++)
-        {
-            //alert(i + ' ' + res.deviceInfos[i].deviceId + ' ' +res.deviceInfos[i].state);
-            if(res.deviceInfos[i].state==="connected")
+        wx.invoke('getWXDeviceInfos', {}, function(res){
+            we.alert("获取硬件设备的信息生效");
+            var len=res.deviceInfos.length;  //绑定设备总数量
+            we.alert(len);
+            for(i=0; i<=len-1;i++)
             {
-                $("#bluetoothContent").html(res.deviceInfos[i].deviceId);
-                deviceId=res.deviceInfos[i].deviceId;
-                $("#lbInfo").html("设备已成功连接");
-                $("#lbInfo").css({color:"green"});
+                //alert(i + ' ' + res.deviceInfos[i].deviceId + ' ' +res.deviceInfos[i].state);
+                if(res.deviceInfos[i].state==="connected")
+                {
+                    $("#bluetoothContent").html(res.deviceInfos[i].deviceId);
+                    deviceId=res.deviceInfos[i].deviceId;
+                    $("#lbInfo").html("设备已成功连接");
+                    $("#lbInfo").css({color:"green"});
+                }
             }
-        }
+        });
+        wx.invoke("connectWXDevice",{"deviceId":deviceId},function(res){
+            alert("连接的信息为："+res.err_msg);
+        })
     });
-});
     //当点击第三个按钮的时候,开始发送数据
     //FE 01 00 0F 75 31 00 00 0A 00 12 01 57 18 00
     $("#btn3").on("click",function(){
@@ -150,34 +153,45 @@ wx.ready(function () {
     $("#btn4").on("click",function(){
 //        we.alert("开始发送");
         we.alert("设备ID"+deviceId);
+        wx.invoke('sendDataToWXDevice', {'deviceId':deviceId, 'base64Data':'/g=='}, function(res) {
+//            console.log('sendDataToWXDevice',res);
+            alert(res.err_msg);
+        });
+    });
+    $("#btn5").on("click",function(){
+//        we.alert("开始发送");
+        we.alert("设备ID"+deviceId);
         wx.invoke('sendDataToWXDevice', {'deviceId':deviceId, 'base64Data':'/gEAD3UxAAAKABIBVxgA'}, function(res) {
 //            console.log('sendDataToWXDevice',res);
             alert(res.err_msg);
         });
     });
-    $("#btn5").on("click",function(e){
+    $("#btn6").on("click",function(e){
         alert("开始"+deviceId);
-
         var Bytes=CheckBalance();
         var x=senddataBytes(Bytes,deviceId);
         alert(x);
     });
     wx.on('onReceiveDataFromWXDevice',function(res){
-        weui.alert("接收到数据了");
-        $("#recData").html(res);
+        alert("接收到数据了");
+        $("#recData").html(res.toString());
     })
-
 });
-wx.checkJsApi({ jsApiList: [ 'openWXDeviceLib', 'onScanWXDevicesResult', 'getWXDeviceInfos'],success: function(res){ console.log(res)}});
-wx.error(function(res){
-      console.log("wx.error错误："+JSON.stringify(res));
-      //如果初始化出错了会调用此方法，没什么特别要注意的
+//****************************************将接收数据的函数放到外面来**********
+  wx.on('onReceiveDataFromWXDevice',function(res){
+      alert("out接收到数据了");
+      $("#recData").html(res.toString());
   });
+  WeixinJSBridge.on("onReceiveDataFromWXDevice",function(res){
+      alert("JSbridge接收到数据了");
+      $("#recData").html(res.toString());
+  });
+    wx.checkJsApi({jsApiList: [ 'openWXDeviceLib', 'sendDataToWXDevice', 'getWXDeviceInfos'],success: function(res) {alert("检查Api"+res)}});
+    wx.error(function(res){
+      alert("wx.error错误："+JSON.stringify(res));
+      //如果初始化出错了会调用此方法，没什么特别要注意的
+    });
 //**************************************************
-
-
-
-
 //额外附加的测试代码
   //发送数据到硬件设备
   function senddataBytes(cmdBytes,selDeviceID){
@@ -209,27 +223,20 @@ wx.error(function(res){
       return x;
   }
 //  一般硬件设备接收的是16进制的指令数据
-
-
   function CheckBalance(){
       var Bytes=new Array();
-
       Bytes[0]=0x02;
-
       Bytes[1]=0x00;
       Bytes[2]=0x05;
-
       Bytes[3]=0x76;
       Bytes[4]=0x89;
-
       Bytes[5]=0x03;
       Bytes[6]=0x74;
       return Bytes;
-
   }
   //转换成base64格式
   function bytes_array_to_base64(array) {
-      if (array.length == 0) {
+      if (array.length == 0){
           return "";
       }
       var b64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -268,7 +275,6 @@ wx.error(function(res){
           // 添加到结果字符串中
           result += (s1 + s2 + s3 + s4);
       }
-
       return result + endChar;
   }
 </script>
