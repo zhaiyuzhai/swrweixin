@@ -16,9 +16,11 @@ $signPackage = $jssdk->GetSignPackage();
     <h1 style="text-align: center">SWR 蓝牙硬件设备测试DEMO</h1>
     <div class="weui-media-box weui-media-box_text">
         <h4 class="weui-media-box__title">蓝牙内容</h4>
+        <p class="weui-media-box__desc" id="checkAPI">#####</p>
         <p id="lbInfo" class="weui-media-box__title">。。。。。。</p>
         <p class="weui-media-box__desc" id="bluetoothContent">。。。。。。</p>
         <p class="weui-media-box__desc" id="recData">......</p>
+
     </div>
 <!--    <button class="weui-btn weui-btn_plain-primary" id="btn1">开始初始化设备</button>-->
     <button class="weui-btn weui-btn_plain-primary" id="btn2">获取蓝牙设备信息</button>
@@ -106,24 +108,29 @@ wx.config({
 wx.ready(function () {
     // 在这里调用 API
 //    weui.alert("wx already ok!!!");
+    wx.checkJsApi({jsApiList: [ 'openWXDeviceLib', 'sendDataToWXDevice', 'getWXDeviceInfos',"onReceiveDataFromWXDevice"],success: function(res){$("#checkAPI").html(JSON.stringify(res))}});
+    wx.error(function(res){
+        alert("wx.error错误："+JSON.stringify(res));
+        //如果初始化出错了会调用此方法，没什么特别要注意的
+    });
 
     wx.invoke('openWXDeviceLib',{'brandUserName':'gh_e09af6572b88'}, function(res){
 //这里是回调函数
-    we.alert(res);
+//    we.alert(res);
     if(res.isSupportBLE=="no"){
-        we.alert("您的设备不支持此蓝牙设备")
+        alert("您的设备不支持此蓝牙设备")
     }
     if(res.bluetoothState=='unauthorized'){
-        we.alert("请您授权设备的蓝牙功能，并打开")
+        alert("请您授权设备的蓝牙功能，并打开")
     }
     });
     $("#btn2").on("click",function(){
 //    alert("btn2 is clicked");
 //    we.alert("weui is worked");
         wx.invoke('getWXDeviceInfos', {}, function(res){
-            we.alert("获取硬件设备的信息生效");
+//            we.alert("获取硬件设备的信息生效");
             var len=res.deviceInfos.length;  //绑定设备总数量
-            we.alert(len);
+//            we.alert(len);
             for(i=0; i<=len-1;i++)
             {
                 //alert(i + ' ' + res.deviceInfos[i].deviceId + ' ' +res.deviceInfos[i].state);
@@ -174,23 +181,33 @@ wx.ready(function () {
     });
     wx.on('onReceiveDataFromWXDevice',function(res){
         alert("接收到数据了");
-        $("#recData").html(res.toString());
-    })
+//        var unicode= BASE64.decoder(res.base64Data);
+//        var str = '';
+//        for(var i = 0 , len =  unicode.length ; i < len ;++i){
+//            str += String.fromCharCode(unicode[i]);
+//        }
+        $("#recData").html(JSON.stringify(res));
+    });
+//    wx.on('onReceiveDataFromWXDevice',function(res){
+//        alert("接收到数据了");
+//        $("#recData").html(res.toString());
+//    })
 });
 //****************************************将接收数据的函数放到外面来**********
-  wx.on('onReceiveDataFromWXDevice',function(res){
-      alert("out接收到数据了");
-      $("#recData").html(res.toString());
-  });
-  WeixinJSBridge.on("onReceiveDataFromWXDevice",function(res){
-      alert("JSbridge接收到数据了");
-      $("#recData").html(res.toString());
-  });
-    wx.checkJsApi({jsApiList: [ 'openWXDeviceLib', 'sendDataToWXDevice', 'getWXDeviceInfos'],success: function(res) {alert("检查Api"+res)}});
-    wx.error(function(res){
-      alert("wx.error错误："+JSON.stringify(res));
-      //如果初始化出错了会调用此方法，没什么特别要注意的
-    });
+//  wx.on('onReceiveDataFromWXDevice',function(res){
+//      alert("out接收到数据了");
+//      $("#recData").html(res.toString());
+//  });
+//  WeixinJSBridge.on("onReceiveDataFromWXDevice",function(res){
+//      alert("JSbridge接收到数据了");
+//      $("#recData").html(res.toString());
+//  });
+//  ###################################################
+//    wx.checkJsApi({jsApiList: [ 'openWXDeviceLib', 'sendDataToWXDevice', 'getWXDeviceInfos',"onReceiveDataFromWXDevice"],success: function(res) {$("#checkAPI").html(res)}});
+//    wx.error(function(res){
+//      alert("wx.error错误："+JSON.stringify(res));
+//      //如果初始化出错了会调用此方法，没什么特别要注意的
+//    });
 //**************************************************
 //额外附加的测试代码
   //发送数据到硬件设备
@@ -234,7 +251,7 @@ wx.ready(function () {
       Bytes[6]=0x74;
       return Bytes;
   }
-  //转换成base64格式
+  //**数组**转换成base64格式
   function bytes_array_to_base64(array) {
       if (array.length == 0){
           return "";

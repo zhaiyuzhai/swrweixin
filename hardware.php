@@ -1,7 +1,7 @@
 <?php
-///**
-// * wechat php test
-// */
+/**
+ * wechat php test
+ */
 //
 ////define your token
 //define("TOKEN", "zhaiyu");
@@ -85,16 +85,59 @@
 //    }
 //}
 //
-//#########################################
+//#########################################*********************#########################################
 //接受来自微信服务器发送过来的内容
 $request=file_get_contents('php://input');
 file_put_contents('./request.txt',$request);
-$response="<xml>
-<ToUserName><![CDATA[o51n91YIyF0PV45MzAbHp5s6vj1k]]></ToUserName>
-<FromUserName><![CDATA[gh_e09af6572b88]]></FromUserName>
-<CreateTime>12345678</CreateTime>
+$response=simplexml_load_string($request);
+//file_put_contents('./res.txt',$response);
+$MsgType=$response->MsgType;
+file_put_contents('./Msg.txt',$MsgType);
+if($MsgType=='event'){
+    $ToUserName=$response->ToUserName;
+    $FromUserName=$response->FromUserName;
+    $CreateTime=$response->CreateTime;
+    $responseContext="<xml>
+<ToUserName><![CDATA[{$FromUserName}]]></ToUserName>
+<FromUserName><![CDATA[{$ToUserName}]]></FromUserName>
+<CreateTime>{$CreateTime}</CreateTime>
 <MsgType><![CDATA[text]]></MsgType>
-<Content><![CDATA[你好]]></Content>
+<Content><![CDATA[欢迎来到我的公众号]]></Content>
 </xml>";
-echo $response;
+    echo $responseContext;
+}
+elseif($MsgType=='device_text')
+{
+    $ToUserName=$response->ToUserName;
+    $FromUserName=$response->FromUserName;
+    $CreateTime=$response->CreateTime;
+    $DeviceID=$response->DeviceID;
+    $SessionID=$response->SessionID;
+    $DeviceType=$response->DeviceType;
+    $responseContext="<xml>
+                        <ToUserName><![CDATA[{$FromUserName}]]></ToUserName>
+                        <FromUserName><![CDATA[{$ToUserName}]]></FromUserName>
+                        <CreateTime>{$CreateTime}</CreateTime>
+                        <MsgType><![CDATA[{$MsgType}}]]></MsgType>
+                        <DeviceType><![CDATA[{$DeviceType}]]></DeviceType>
+                        <DeviceID><![CDATA[{$DeviceID}]]></DeviceID>
+                        <SessionID>{$SessionID}</SessionID>
+                        <Content><![CDATA[hello]]></Content>
+                    </xml>";
+    echo $responseContext;
+    file_put_contents('./Touser.txt',$DeviceID);
+}elseif ($MsgType=='text'){
+    $Content=$response->Content;
+    $ToUserName=$response->ToUserName;
+    $FromUserName=$response->FromUserName;
+    $CreateTime=$response->CreateTime;
+    $responseContext="<xml>
+<ToUserName><![CDATA[{$FromUserName}]]></ToUserName>
+<FromUserName><![CDATA[{$ToUserName}]]></FromUserName>
+<CreateTime>{$CreateTime}</CreateTime>
+<MsgType><![CDATA[text]]></MsgType>
+<Content><![CDATA[hello]]></Content>
+</xml>";
+    echo $responseContext;
+}
 ?>
