@@ -1,35 +1,18 @@
-function getAraay(){
+/*封装了处理十六字节数组转换为base64的方法*/
+function orderAraay(){
     //FE 01 00 0F 75 31 00 00 0A 00 12 01 57 18 00
     var Bytes=new Array();
-
-    Bytes[0]=0xFE;
-
-    Bytes[1]=0x01;
-    Bytes[2]=0x00;
-
-    Bytes[3]=0x0F;
-    Bytes[4]=0x75;
-
-    Bytes[5]=0x31;
-    Bytes[6]=0x00;
-    Bytes[7]=0x00;
-    Bytes[8]=0x0A;
-    Bytes[9]=0x00;
-    Bytes[10]=0x12;
-    Bytes[11]=0x01;
-    Bytes[12]=0x57;
-    Bytes[13]=0x18;
-    Bytes[14]=0x00;
+    for(var i=0;i<arguments.length;i++){
+        Bytes[i]=arguments[i];
+    }
     return Bytes;
 }
-// 根据微信官方文档说明，发送的指令数据必须是base64编码，所以还必须有个转换方法。
-
-/**
+/*根据微信官方文档说明，发送的指令数据必须是base64编码，所以还必须有个转换方法。
  *  Byte数组转Base64字符,原理同上
  * @Param [0x00,0x00]
  * @return Base64字符串
  **/
-function bytes_array_to_base64(array) {
+function arrayToBase64(array) {
     if (array.length == 0) {
         return "";
     }
@@ -69,8 +52,8 @@ function bytes_array_to_base64(array) {
         // 添加到结果字符串中
         result += (s1 + s2 + s3 + s4);
     }
-
     return result + endChar;
 }
-var arr=getAraay();
-console.log(bytes_array_to_base64(arr));
+var arr=orderAraay(0x57,0x58);
+console.log(arr);
+console.log(arrayToBase64(arr));
