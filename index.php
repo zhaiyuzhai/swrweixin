@@ -25,12 +25,11 @@ file_put_contents('./WXdevice.txt',$request);
             <h4 class="weui-media-box__title">蓝牙内容</h4>
             <p id="checkAPI">#####</p>
             <p id="lbInfo" class="weui-media-box__desc">。。。。。。</p>
-            <p class="weui-media-box__desc" id="bluetoothContent">。。。。。。</p>
+            <p class="weui-media-box__desc" id="bluetoothContent"></p>
             <p class="weui-media-box__desc" id="recData">
                 <span style="color:red;">接受到的数据为：</span>
             </p>
             <p class="weui-media-box__desc" id="recCount"></p>
-
         </div>
         <!--    <button class="weui-btn weui-btn_plain-primary" id="btn1">开始初始化设备</button>-->
         <button class="weui-btn weui-btn_plain-primary" id="btn1">检查jsApi</button>
@@ -43,7 +42,7 @@ file_put_contents('./WXdevice.txt',$request);
         <button class="weui-btn weui-btn_plain-primary" id="btn8">100ms</button>
         <button class="weui-btn weui-btn_plain-primary" id="btn9">200ms</button>
         <button class="weui-btn weui-btn_plain-primary" id="btn10">开始</button>
-
+        <button class="weui-btn weui-btn_plain-primary" id="btn13">发送时间</button>
     </div>
 </body>
 <!--引入微信官方的weui.css的配套js文件-->
@@ -55,6 +54,7 @@ file_put_contents('./WXdevice.txt',$request);
 <!--引入base64来对接收的数据进行解码-->
 <script src="js/base64.min.js"></script>
 <script>
+    alert("new")
   /*
    * 注意：
    * 1. 所有的JS接口只能在公众号绑定的域名下调用，公众号开发者需要先登录微信公众平台进入“公众号设置”的“功能设置”里填写“JS接口安全域名”。
@@ -67,7 +67,7 @@ file_put_contents('./WXdevice.txt',$request);
    * 邮件内容说明：用简明的语言描述问题所在，并交代清楚遇到该问题的场景，可附上截屏图片，微信团队会尽快处理你的反馈。
    */
   var we=weui;
-  var deviceId;
+  var deviceId=[];
   var recCount=0;
 wx.config({
     beta:true,
@@ -130,7 +130,7 @@ wx.config({
 wx.ready(function () {
     // 在这里调用 API
     wx.error(function(res){
-        alert("wx.error错误："+JSON.stringify(res));
+        alert("wx.error错误:"+JSON.stringify(res));
         //如果初始化出错了会调用此方法，没什么特别要注意的
     });
 //        打开设备的硬件功能
@@ -151,20 +151,22 @@ wx.ready(function () {
     $("#btn2").on("click",function(){
         wx.invoke('getWXDeviceInfos', {}, function(res){
             var len=res.deviceInfos.length;  //绑定设备总数量
+//            $("#bluetoothContent").html(JSON.stringify(res.deviceInfos));
+
             for(i=0; i<len;i++)
             {
+                $("#bluetoothContent").append("<span>"+JSON.stringify(res.deviceInfos[i])+"</span>")
                 if(res.deviceInfos[i].state==="connected")
                 {
-                    $("#bluetoothContent").html(res.deviceInfos[i].deviceId);
-                    deviceId=res.deviceInfos[i].deviceId;
+                    deviceId.push(res.deviceInfos[i].deviceId);
                     $("#lbInfo").html("设备已成功连接");
                     $("#lbInfo").css({color:"green"});
                 }
             }
         });
-        wx.invoke("connectWXDevice",{"deviceId":deviceId},function(res){
-            alert("连接的信息为："+res.err_msg);
-        })
+//        wx.invoke("connectWXDevice",{"deviceId":deviceId},function(res){
+//            alert("连接的信息为："+res.err_msg);
+//        })
     });
     //btn3，开始发送数据W
     $("#btn3").on("click",function(){
@@ -181,6 +183,7 @@ wx.ready(function () {
 //    发送十六进制的选择命令A804--20ms
     $("#btn6").on("click",function(){
         sendData([0xA8,0x04]);
+
     });
 //    发送十六进制的选择命令A805--50ms
     $("#btn7").on("click",function(e){
@@ -206,6 +209,16 @@ wx.ready(function () {
         $("#recData").html("");
         $("#reccount").html("");
     });
+    $("#btn13").on("click",function(e){
+        var newdate=new Date();
+        var fullyear=newdate.getFullYear()-2000;
+        var month=newdate.getMonth()+1;
+        var date=newdate.getDate();
+        var hour=newdate.getHours();
+        var minute=newdate.getMinutes();
+        var second=newdate.getSeconds();
+        sendData([0x66,fullyear,month,date,hour,minute,second]);
+    });
 //    当设备接收到数据的时候，返回给jsapi，HTML页面
     wx.on('onReceiveDataFromWXDevice',function(res){
         recCount++;
@@ -216,9 +229,26 @@ wx.ready(function () {
 /*发送数据到硬件设备,直接输入,写成数组形式*/
 function sendData(arr) {
     var base64Data=arrayToBase64(orderAraay(arr));
-    wx.invoke('sendDataToWXDevice', {'deviceId':deviceId, 'base64Data':base64Data}, function(res) {
-        alert(res.err_msg);
-    });
+//    function fun(i) {
+//        wx.invoke('sendDataToWXDevice', {'deviceId':deviceId[i], 'base64Data':base64Data}, function(res) {
+////            alert(res.err_msg);
+//        })
+//    }
+//    for(var i=0,len=deviceId.length;i<len;i++){
+//        setTimeout(fun(i),10000)
+//    }
+    var cout=0;
+    function sFunc() {
+        wx.invoke('sendDataToWXDevice', {'deviceId':deviceId[cout], 'base64Data':base64Data}, function(res) {
+//            alert(res.err_msg);
+        });
+        cout++;
+        if(cout==deviceId.length){
+            clearInterval(timer1);
+            timer1=null;
+        }
+    }
+    var timer1=setInterval(sFunc,150)
 }
 /*封装了处理十六字节数组转换为base64的方法*/
 function orderAraay(arr){
@@ -289,7 +319,7 @@ function getNumFromRaw(msg) {
     var str='';
     var wx=Base64.decode(msg);
     if(wx.length<=2){
-        return "";
+        return "数据丢帧";
     } else{
         for(var i=0;i<wx.length;i++){
             str+=wx.charCodeAt(i)+";";
